@@ -1,5 +1,16 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
+def save_to() -> str:
+    """
+    Куда сохраняем данные в файл или в MongoDB:
+        mongo - Сохраняем в MongoDB
+        file - Сохраняем в файл.
+    :rtype: str
+    """
+    # TODO нужно создавать все необходимые директории
+    return 'file'
+
+
 def data_directory() -> str:
     """
     Рабочий католог в котором краулер сохраняет результат свой работы.
