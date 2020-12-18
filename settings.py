@@ -1,11 +1,12 @@
-
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
 def data_directory() -> str:
     """
     Рабочий католог в котором краулер сохраняет результат свой работы.
     :rtype: str
     """
     # TODO нужно создавать все необходимые директории
-    return 'c:/test/1CForumCrawler/v2/'
+    return 'result/'
 
 
 def base_url() -> str:

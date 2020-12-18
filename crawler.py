@@ -1,6 +1,7 @@
-
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
 from time import sleep
-
+from bs4 import BeautifulSoup
 import requests
 from colorama import Fore
 
@@ -26,40 +27,47 @@ class Crawler:
         self.current_url_id = int(self.cache.last_id) if self.cache.last_id else crawl_start_id()
         self.current_url = ''
 
-    def break_data_load(self) -> bool:
+    def break_data_load(self):
         return True if self.__failures == max_attempts() else False
 
     def open_session(self):
+
         session = requests.Session()
-        session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:57.0) Gecko/20100101 Firefox/57.0'
-        })
 
         auth_data = authorization_data()
-        page = session.get(self.__login_url).text
-        auth_data['execution'] = self.parser.execution_data(page)
-        session.post(self.__login_url, data=auth_data)
+        
+        url = login_url()
+        session.headers = {"Connection": "keep-alive"}
+        response = session.get(url, allow_redirects=False)
+        cooks = response.headers.get('Set-Cookie').split(';')[0]
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        auth_data['execution'] = soup.findAll(attrs={'name': 'execution'})[0]['value']
+
+        post_body = "inviteCode=&username=" + auth_data['username']
+        post_body += "&password=" + auth_data['password']
+        post_body += "&execution=" + auth_data['execution']
+        post_body += "&_eventId=submit"
+        post_body += "&geolocation="
+        post_body += "&submit=Войти"
+        post_body += "&rememberMe=on"
+
+        session.headers.update({"Content-Type": "application/x-www-form-urlencoded", "Cookie": cooks+"; i18next=ru-RU"})
+        
+        session.post(url, data=post_body.encode('utf-8'), allow_redirects=False)
 
         return session
 
     def load_topic(self, page):
-        page_index = 1
-        while True:
-            self.parser.parse_page(page, self)
-            self.file_io_driver.save_messages(self.parser)
-            next_page_url_of_same_topic = settings.base_url() + str(self.current_url_id) + '?page=' + str(page_index)
-            page = self.__session.get(next_page_url_of_same_topic)
-            if no_next_page_found() in page.text:
-                break
-            else:
-                print(Fore.BLUE + 'Найдена новая страница темы')
-            page_index += 1
+        print(Fore.BLUE + 'Найдена новая страница темы')
+        self.parser.parse_page(page, self)
+        self.file_io_driver.save_messages(self.parser)
         self.current_url_id = self.parser.next_url_id(page)
 
     def load_data(self):
         while self.current_url_id:
             # page=0 - первая страница темы, pageSize=Size5 - 50 сообщений на странице, максимальная порция.
-            full_url = self.__base_url + str(self.current_url_id) + '?page=0&pageSize=Size5'
+            full_url = self.__base_url + str(self.current_url_id)
             self.cache.last_id = self.current_url_id
             page = self.__session.get(full_url)
             if no_page_found() in page.text:

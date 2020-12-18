@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
 from bs4 import BeautifulSoup
 
 from forum_message import ForumMessage
@@ -11,21 +13,26 @@ class MyParser:
 
     def parse_page(self, page, crawler):
         self.messages = []  # очистим сообщения перед парсингом новой страницы.
-        soup = BeautifulSoup(page.text, 'html5lib')
-        category = soup('span', 'topicTitleTheme')[0].text
+        soup = BeautifulSoup(page.text, 'lxml')
+        category = soup('div', 'topicSubject')[0].text
 
-        for message in soup('div', 'topicMessage'):
+        for message in soup('div', 'message'):
             self.parse_message(message, category, crawler)
 
     def parse_message(self, message, category, crawler):
+        
         message_header = message.find('div', 'subject')
 
         usefull_message = not message_header.find('div', {'class': 'usefulMessageImg'}) is None
-        message_score = message_header.contents[3].attrs['title']
-        message_author = message_header.contents[5].text.strip()
-        message_date = message_header.contents[7].text.strip()
-        message_id = message_header.contents[9].text.strip()
-
+        
+        message_score = message_header.find('a', {'class': 'messageRating'}).attrs['title'].strip()
+        
+        message_author = message_header.find('span', {'class': 'userNickIconUrl'}).text.strip()
+       
+        message_date = message_header.find('div', {'class': 'messageDate'}).text.strip()
+        
+        message_id = message_header.find('div', {'class': 'subjectNumber'}).find('span').text.strip()
+        
         message_text = message.find('div', 'text highlightingContainer messageTextForFormat breakWord').text.strip()
 
         message = ForumMessage(
@@ -43,11 +50,13 @@ class MyParser:
 
     @staticmethod
     def next_url_id(page):
-        soup = BeautifulSoup(page.text, 'html5lib')
-        try:
-            next_url_id = int(soup('div', 'previousTopic nextPreviousTopic ')[0].attrs['data-message-id'])
-        except IndexError:  # IndexError в этом случае - отсутствие ссылки на следующую тему.
+        soup = BeautifulSoup(page.text, 'lxml')
+        prevTopic = soup.find('div', 'topicPage').find('div', {'class': 'previousNextTopicContainer'}).find('div', {'class': 'previousTopic nextPreviousTopic'})
+        
+        if prevTopic is None:
             next_url_id = False
+        else:
+            next_url_id = int(prevTopic.attrs['data-message-id'])
 
         return next_url_id
 
@@ -60,7 +69,7 @@ class MyParser:
         :param page:
         :return:
         """
-        soup = BeautifulSoup(page, 'html5lib')
+        soup = BeautifulSoup(page, 'lxml')
         return soup.findAll('input', value=True)[3].get('value', '').strip()
 
     @staticmethod
