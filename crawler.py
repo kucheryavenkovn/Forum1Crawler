@@ -46,14 +46,14 @@ class Crawler:
         cooks = response.headers.get('Set-Cookie').split(';')[0]
         
         soup = BeautifulSoup(response.text, 'html.parser')
-        auth_data['execution'] = soup.findAll(attrs={'name': 'execution'})[0]['value']
+        auth_data['execution'] = soup.findAll(attrs={'name': 'execution'})[0]['value'].replace("=", "\%3D")
 
         post_body = "inviteCode=&username=" + auth_data['username']
         post_body += "&password=" + auth_data['password']
         post_body += "&execution=" + auth_data['execution']
         post_body += "&_eventId=submit"
         post_body += "&geolocation="
-        post_body += "&submit=Войти"
+        post_body += "&submit=\%D0\%92\%D0\%BE\%D0\%B9\%D1\%82\%D0\%B8"
         post_body += "&rememberMe=on"
 
         session.headers.update({"Content-Type": "application/x-www-form-urlencoded", "Cookie": cooks+"; i18next=ru-RU"})

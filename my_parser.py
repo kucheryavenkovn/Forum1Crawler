@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 from bs4 import BeautifulSoup
-
+import datetime
 from forum_message import ForumMessage
 import re
 
@@ -30,7 +30,15 @@ class MyParser:
         message_author = message_header.find('span', {'class': 'userNickIconUrl'}).text.strip()
        
         message_date = message_header.find('div', {'class': 'messageDate'}).text.strip()
-        
+        now = datetime.datetime.now()
+        # TODO Сделать правильные даты
+        if 'сегодня' in message_date:
+            message_date = now.strftime("%d.%m.%Y %H:%M")
+        elif 'назад' in message_date:
+            message_date = now.strftime("%d.%m.%Y %H:%M")
+        elif 'вчера' in message_date:
+            message_date = now.strftime("%d.%m.%Y %H:%M")
+
         message_id = message_header.find('div', {'class': 'subjectNumber'}).find('span').text.strip()
         
         message_text = message.find('div', 'text highlightingContainer messageTextForFormat breakWord').text.strip()
