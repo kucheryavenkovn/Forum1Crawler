@@ -9,9 +9,10 @@ import settings
 from my_parser import MyParser
 from cache import Cache
 from file_io_driver import FileIODriver
+from mongo_io_driver import MongoIODriver
 from secret import authorization_data
 from settings import base_url, no_page_found, sleep_timer, max_attempts, login_url, no_next_page_found, \
-    crawl_start_id
+    crawl_start_id, save_to
 
 
 class Crawler:
@@ -23,7 +24,10 @@ class Crawler:
         self.__failures = 0
         self.__session = self.open_session()
         self.cache = Cache()
-        self.file_io_driver = FileIODriver()
+        if save_to() == 'file':
+            self.io_driver = FileIODriver()
+        else:
+            self.io_driver = MongoIODriver()
         self.current_url_id = int(self.cache.last_id) if self.cache.last_id else crawl_start_id()
         self.current_url = ''
 
@@ -61,7 +65,7 @@ class Crawler:
     def load_topic(self, page):
         print(Fore.BLUE + 'Найдена новая страница темы')
         self.parser.parse_page(page, self)
-        self.file_io_driver.save_messages(self.parser)
+        self.io_driver.save_messages(self.parser)
         self.current_url_id = self.parser.next_url_id(page)
 
     def load_data(self):
@@ -90,4 +94,4 @@ class Crawler:
 
     def save_data(self):
         self.cache.save()
-        self.file_io_driver.save_messages(self.parser)
+        self.io_driver.save_messages(self.parser)

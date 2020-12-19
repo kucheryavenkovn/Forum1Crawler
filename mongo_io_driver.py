@@ -20,9 +20,9 @@ class MongoIODriver:
     """
     def __init__(self):
         mongo_data = mongo_db_data()
-        client = pymongo.MongoClient(mongo_data.ip, mongo_data.port)
-        self.db = client[mongo_data.db]
-        self.table = self.db[mongo_data.table]
+        client = pymongo.MongoClient(mongo_data['ip'], mongo_data['port'])
+        self.db = client[mongo_data['db']]
+        self.table = self.db[mongo_data['table']]
 
     def save_messages(self, parser):
         for message in parser.messages:

@@ -26,11 +26,12 @@ class Cache:
                 return 0
         else:
             mongo_data = mongo_db_data()
-            client = pymongo.MongoClient(mongo_data.ip, mongo_data.port)
-            db = client[mongo_data.db]
+            client = pymongo.MongoClient(mongo_data['ip'], mongo_data['port'])
+            db = client[mongo_data['db']]
             data = db.cache.find_one()
             if data is None:
                 print('Внимание! Не найдена запись ID темы. Будет записана новая.')
+                return 0
 
         return load(data)
 
