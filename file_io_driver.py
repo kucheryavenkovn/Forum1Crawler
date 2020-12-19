@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import csv
 import os
-
 import settings
 from forum_message import ForumMessage
 

@@ -4,15 +4,12 @@ from time import sleep
 from bs4 import BeautifulSoup
 import requests
 from colorama import Fore
-
-import settings
 from my_parser import MyParser
 from cache import Cache
 from file_io_driver import FileIODriver
 from mongo_io_driver import MongoIODriver
 from secret import authorization_data
-from settings import base_url, no_page_found, sleep_timer, max_attempts, login_url, no_next_page_found, \
-    crawl_start_id, save_to
+from settings import base_url, no_page_found, sleep_timer, max_attempts, login_url, crawl_start_id, save_to
 
 
 class Crawler:
@@ -46,14 +43,14 @@ class Crawler:
         cooks = response.headers.get('Set-Cookie').split(';')[0]
         
         soup = BeautifulSoup(response.text, 'html.parser')
-        auth_data['execution'] = soup.findAll(attrs={'name': 'execution'})[0]['value'].replace("=", "\%3D")
+        auth_data['execution'] = soup.findAll(attrs={'name': 'execution'})[0]['value']
 
         post_body = "inviteCode=&username=" + auth_data['username']
         post_body += "&password=" + auth_data['password']
         post_body += "&execution=" + auth_data['execution']
         post_body += "&_eventId=submit"
         post_body += "&geolocation="
-        post_body += "&submit=\%D0\%92\%D0\%BE\%D0\%B9\%D1\%82\%D0\%B8"
+        post_body += "&submit=Войти"
         post_body += "&rememberMe=on"
 
         session.headers.update({"Content-Type": "application/x-www-form-urlencoded", "Cookie": cooks+"; i18next=ru-RU"})

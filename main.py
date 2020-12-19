@@ -16,13 +16,8 @@ def main():
     Необходимо самостоятельно создать модуль secret.py и разместить в нем функции:
     def authorization_data():
     return {
-        'inviteCode': '',
         'username': '', # Логин на форуме
-        'password': '', # Пароль на форуме
-        '_eventId': 'submit',
-        'geolocation': '',
-        'submit': 'Войти',
-        'rememberMe': 'on'
+        'password': '' # Пароль на форуме
     }
 
     def mongo_db_data():
