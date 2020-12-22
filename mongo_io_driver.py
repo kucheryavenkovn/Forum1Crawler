@@ -26,4 +26,4 @@ class MongoIODriver:
 
     def save_messages(self, parser):
         for message in parser.messages:
-            self.table.insert_one(message)
+            self.table.insert_one(message.message_representation())

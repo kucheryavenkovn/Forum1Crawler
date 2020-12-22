@@ -45,6 +45,6 @@ class Cache:
                 dump(self.last_id, data)
         else:
             mongo_data = mongo_db_data()
-            client = pymongo.MongoClient(mongo_data.ip, mongo_data.port)
-            db = client[mongo_data.db]
+            client = pymongo.MongoClient(mongo_data["ip"], mongo_data["port"])
+            db = client[mongo_data["db"]]
             db.cache.update_one({}, self.last_id)

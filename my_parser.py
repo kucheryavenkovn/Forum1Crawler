@@ -13,7 +13,7 @@ class MyParser:
 
     def parse_page(self, page, crawler):
         self.messages = []  # очистим сообщения перед парсингом новой страницы.
-        soup = BeautifulSoup(page.text, 'lxml')
+        soup = BeautifulSoup(page.text, 'html.parser')
         category = soup('div', 'topicSubject')[0].text
 
         for message in soup('div', 'message'):
@@ -58,7 +58,7 @@ class MyParser:
 
     @staticmethod
     def next_url_id(page):
-        soup = BeautifulSoup(page.text, 'lxml')
+        soup = BeautifulSoup(page.text, 'html.parser')
         prevTopic = soup.find('div', 'topicPage').find('div', {'class': 'previousNextTopicContainer'}).find('div', {'class': 'previousTopic nextPreviousTopic'})
         
         if prevTopic is None:
@@ -77,7 +77,7 @@ class MyParser:
         :param page:
         :return:
         """
-        soup = BeautifulSoup(page, 'lxml')
+        soup = BeautifulSoup(page, 'html.parser')
         return soup.findAll('input', value=True)[3].get('value', '').strip()
 
     @staticmethod

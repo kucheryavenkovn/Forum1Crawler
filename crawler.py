@@ -6,11 +6,15 @@ import requests
 from colorama import Fore
 from my_parser import MyParser
 from cache import Cache
+import ssl
 from file_io_driver import FileIODriver
 from mongo_io_driver import MongoIODriver
 from secret import authorization_data
 from settings import base_url, no_page_found, sleep_timer, max_attempts, login_url, crawl_start_id, save_to
 
+from urllib3.poolmanager import PoolManager
+
+from requests.adapters import HTTPAdapter
 
 class Crawler:
 

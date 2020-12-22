@@ -7,7 +7,7 @@ def save_to() -> str:
         file - Сохраняем в файл.
     :rtype: str
     """
-    return 'file'
+    return 'mongo'
 
 
 def data_directory() -> str:
