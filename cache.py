@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 import pymongo
 from json import dump, load
-from settings import data_directory
-from settings import save_to
+from settings import data_directory, save_to, mongo_db
 from secret import mongo_db_data
 
 
@@ -27,7 +26,7 @@ class Cache:
         else:
             mongo_data = mongo_db_data()
             client = pymongo.MongoClient(mongo_data['ip'], mongo_data['port'])
-            db = client[mongo_data['db']]
+            db = client[mongo_db()]
             data = db.cache.find_one()
             if data is None:
                 print('Внимание! Не найдена запись ID темы. Будет записана новая.')
@@ -46,5 +45,5 @@ class Cache:
         else:
             mongo_data = mongo_db_data()
             client = pymongo.MongoClient(mongo_data["ip"], mongo_data["port"])
-            db = client[mongo_data["db"]]
+            db = client[mongo_db()]
             db.cache.update_one({}, self.last_id)

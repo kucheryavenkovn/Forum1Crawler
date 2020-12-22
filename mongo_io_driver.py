@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 import pymongo
+import datetime
 from secret import mongo_db_data
+from settings import mongo_db, mongo_table
 
 
 class MongoIODriver:
@@ -21,9 +23,11 @@ class MongoIODriver:
     def __init__(self):
         mongo_data = mongo_db_data()
         client = pymongo.MongoClient(mongo_data['ip'], mongo_data['port'])
-        self.db = client[mongo_data['db']]
-        self.table = self.db[mongo_data['table']]
+        self.db = client[mongo_db()]
+        self.table = self.db[mongo_table()]
 
     def save_messages(self, parser):
         for message in parser.messages:
+            # Приведем дату к типу
+            message.datetime = datetime.datetime.strptime(message.datetime, '%d.%m.%Y %H:%M')
             self.table.insert_one(message.message_representation())
