@@ -53,8 +53,9 @@ class Crawler:
         post_body += "&submit=Войти"
         post_body += "&rememberMe=on"
 
-        session.headers.update({"Content-Type": "application/x-www-form-urlencoded", "Cookie": cooks+"; i18next=ru-RU"})
-        
+        session.headers.update(
+            {"Content-Type": "application/x-www-form-urlencoded", "Cookie": cooks + "; i18next=ru-RU"})
+        session.headers.update({"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/534.30 (KHTML, like Gecko) Ubuntu/11.04 Chromium/12.0.742.112 Chrome/12.0.742.112 Safari/534.30"})
         session.post(url, data=post_body.encode('utf-8'), allow_redirects=False)
 
         return session
