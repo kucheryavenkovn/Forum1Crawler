@@ -28,7 +28,10 @@ class MongoIODriver:
 
     def save_messages(self, parser):
         for message in parser.messages:
-            message.category = message.category.strip
+            message_dict = message.message_representation()
+
+            message_dict['category'] = message_dict['category'].strip()
             # Приведем дату к типу
-            message.datetime = datetime.datetime.strptime(message.datetime, '%d.%m.%Y %H:%M')
-            self.table.insert_one(message.message_representation())
+            message_dict['datetime'] = datetime.datetime.strptime(message_dict['datetime'], '%d.%m.%Y %H:%M')
+
+            self.table.insert_one(message_dict)
