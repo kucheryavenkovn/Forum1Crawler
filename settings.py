@@ -35,6 +35,14 @@ def mongo_table() -> str:
     return 'messages'
 
 
+def filter_company() -> str:
+    """
+    По какой компании собираем данные. Если не указано, то значит по всем
+    :rtype: str
+    """
+    return '1С, Москва'
+
+
 def base_url() -> str:
     """
     Неизменяемая часть адреса для получения данных.

@@ -3,6 +3,7 @@
 from bs4 import BeautifulSoup
 import datetime
 from forum_message import ForumMessage
+from settings import filter_company
 import re
 
 
@@ -30,8 +31,9 @@ class MyParser:
         message_author = message_header.find('span', {'class': 'userNickIconUrl'}).text.strip()
        
         message_date = message_header.find('div', {'class': 'messageDate'}).text.strip()
-        now = datetime.datetime.now()
+
         # TODO Сделать правильные даты
+        now = datetime.datetime.now()
         if 'сегодня' in message_date:
             message_date = now.strftime("%d.%m.%Y %H:%M")
         elif 'назад' in message_date:
@@ -54,6 +56,11 @@ class MyParser:
             usefull_message,
             parser=self
         )
+
+        if filter_company() != '' and message.company != filter_company():
+            # Если не соответствует фильтр, то не добавляем сообщение
+            return
+
         self.messages.append(message)
 
     @staticmethod
