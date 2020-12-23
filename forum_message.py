@@ -11,8 +11,8 @@ class ForumMessage:
         self.cons_score = scores['cons_score']
 
         user_info = parser.parse_user_info(args[2])
-        self.username = user_info['username']
-        self.company = user_info['company']
+        self.username = user_info['username'].strip()
+        self.company = user_info['company'].strip()
 
         self.datetime = args[3]
         self.message_id = args[4]

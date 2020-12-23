@@ -27,10 +27,11 @@ class Cache:
             mongo_data = mongo_db_data()
             client = pymongo.MongoClient(mongo_data['ip'], mongo_data['port'])
             db = client[mongo_db()]
-            data = db.cache.find_one()
-            if data is None:
+            record = db.cache.find_one()
+            if record is None:
                 print('Внимание! Не найдена запись ID темы. Будет записана новая.')
                 return 0
+            data = record['last_id']
 
         return load(data)
 
@@ -46,4 +47,5 @@ class Cache:
             mongo_data = mongo_db_data()
             client = pymongo.MongoClient(mongo_data["ip"], mongo_data["port"])
             db = client[mongo_db()]
-            db.cache.update_one({}, self.last_id)
+
+            db.cache.insert_one({'last_id': self.last_id})

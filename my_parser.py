@@ -57,9 +57,11 @@ class MyParser:
             parser=self
         )
 
-        if filter_company() != '' and message.company != filter_company():
-            # Если не соответствует фильтр, то не добавляем сообщение
-            return
+        if len(filter_company()) > 0:
+            company = message.company.split(',')[0].strip()
+            if company not in filter_company():
+                # Если не соответствует фильтр, то не добавляем сообщение
+                return
 
         self.messages.append(message)
 

@@ -38,9 +38,9 @@ def mongo_table() -> str:
 def filter_company() -> str:
     """
     По какой компании собираем данные. Если не указано, то значит по всем
-    :rtype: str
+    :rtype: array
     """
-    return '1С, Москва'
+    return ['1C', '1С']
 
 
 def base_url() -> str:
@@ -64,7 +64,7 @@ def crawl_start_id() -> int:
     Идентификатор темы с которой начнется загрузка сообщений, если это первый запуск программы.
     :rtype: int
     """
-    return 225_047
+    return 1546799
 
 
 def max_attempts() -> int:
