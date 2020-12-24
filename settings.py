@@ -3,11 +3,13 @@
 def save_to() -> str:
     """
     Куда сохраняем данные в файл или в MongoDB:
-        mongo - Сохраняем в MongoDB
+        mongo - Сохраняем в MongoDB.
+        При указания этого режима проверить функции mongo_db(), mongo_table, secret.mongo_db_data()
         file - Сохраняем в файл.
+        При указании этого режима проверить функции data_directory()
     :rtype: str
     """
-    return 'mongo'
+    return 'file'
 
 
 def data_directory() -> str:
@@ -48,7 +50,7 @@ def base_url() -> str:
     Неизменяемая часть адреса для получения данных.
     :rtype: str
     """
-    return 'https://partners.v8.1c.ru/forum/topic/'
+    return 'https://partners.v8.1c.ru/forum'
 
 
 def login_url() -> str:

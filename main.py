@@ -10,8 +10,9 @@ def save_data(crawler):
 
 def main():
     """
-    Грабит данные с https://partners.v8.1c.ru/forum и сохраняет в директорию
-    указанную в settings.py get_data_directory() для последующего построения модели анализа тональности.
+    Грабит данные с https://partners.v8.1c.ru/forum и сохраняет либо в директорию, либо в mongoDB.
+    Вариант сохранения указавается в settings.py save_to().
+    Можно собирать данные по конкретной компании (settings.py filter_company())
 
     Необходимо самостоятельно создать модуль secret.py и разместить в нем функции:
     def authorization_data():
@@ -23,12 +24,13 @@ def main():
     def mongo_db_data():
     return {
         'ip': '', # IP, где расположена база
-        'port':  # <int> Порт, на котором открыт монго
+        'port': 0 # Порт, на котором открыт монго
     }
     Используемые сторонние библиотеки:
         * requests
         * beautifulsoup4
         * colorama
+        * pymongo
 
     """
     init()

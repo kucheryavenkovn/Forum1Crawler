@@ -51,7 +51,7 @@ class MongoIODriver:
             # Приведем строковое представление даты к типу datetime
             message_dict['datetime'] = datetime.datetime.strptime(message_dict['datetime'], '%d.%m.%Y %H:%M')
             # Соберем полный адрес сообщения
-            message_dict['full_url'] = 'https://partners.v8.1c.ru/forum/message/{message_url}#m_{message_url}'.format(
-                message_url=message_dict['id'])
+            message_dict['full_url'] = '{base_url}/message/{message_url}#m_{message_url}'.format(
+                base_url=base_url(), message_url=message_dict['id'])
 
             self.table.insert_one(message_dict)

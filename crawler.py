@@ -69,7 +69,8 @@ class Crawler:
     def load_data(self):
         while self.current_url_id:
             # page=0 - первая страница темы, pageSize=Size5 - 50 сообщений на странице, максимальная порция.
-            full_url = self.__base_url + str(self.current_url_id)
+            full_url = '{base_url}/topic/{url_id}'.format(base_url = self.__base_url, url_id = str(self.current_url_id))
+
             self.cache.last_id = self.current_url_id
             page = self.__session.get(full_url)
             if no_page_found() in page.text:
