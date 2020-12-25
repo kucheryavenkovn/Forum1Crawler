@@ -33,7 +33,8 @@ class MongoIODriver:
         for message in parser.messages:
             record = self.table.find_one({'id': message.id})
             if record is not None:
-                # Пропускаем сообщение
+                # Это сообщение было добавлено раньше,
+                # поэтому пропускаем сообщение
                 continue
             message_dict = message.message_representation()
             # Разделим компанию и город
