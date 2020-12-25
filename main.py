@@ -10,7 +10,7 @@ def save_data(crawler):
 
 def main():
     """
-    Грабит данные с https://partners.v8.1c.ru/forum и сохраняет либо в директорию, либо в mongoDB.
+    Собирает данные с https://partners.v8.1c.ru/forum и сохраняет либо в директорию, либо в mongoDB.
     Вариант сохранения указавается в settings.py save_to().
     Можно собирать данные по конкретной компании (settings.py filter_company())
 
@@ -26,6 +26,10 @@ def main():
         'ip': '', # IP, где расположена база
         'port': 0 # Порт, на котором открыт монго
     }
+
+    Если используется сохранение в файл,
+    то необходимо создать директорию и указать к ней путь в settings.py data_directory
+
     Используемые сторонние библиотеки:
         * requests
         * beautifulsoup4

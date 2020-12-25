@@ -17,7 +17,6 @@ def data_directory() -> str:
     Рабочий каталог в котором краулер сохраняет результат свой работы.
     :rtype: str
     """
-    # TODO нужно создавать все необходимые директории
     return 'result/'
 
 
@@ -61,21 +60,13 @@ def login_url() -> str:
     return 'https://login.1c.ru/login'
 
 
-def crawl_start_id() -> int:
-    """
-    Идентификатор темы с которой начнется загрузка сообщений, если это первый запуск программы.
-    :rtype: int
-    """
-    return 1546799
-
-
 def crawl_start_date() -> str:
     """
     Дата, с которой начнется загрузка сообщений, если это первый запуск,
     в формате, который указан в datetime_format()
     :rtype: str
     """
-    return '01.12.2020 00:00'
+    return '15.12.2020 00:00'
 
 
 def datetime_format() -> str:
