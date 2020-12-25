@@ -3,7 +3,7 @@
 from bs4 import BeautifulSoup
 import datetime
 from forum_message import ForumMessage
-from settings import filter_company
+from settings import datetime_format
 import re
 
 
@@ -11,6 +11,7 @@ class MyParser:
 
     def __init__(self):
         self.messages = []
+        self.pages = []
 
     def parse_page(self, page, crawler):
         self.messages = []  # очистим сообщения перед парсингом новой страницы.
@@ -32,14 +33,14 @@ class MyParser:
        
         message_date = message_header.find('div', {'class': 'messageDate'}).text.strip()
 
-        # TODO Сделать правильные даты
         now = datetime.datetime.now()
-        if 'сегодня' in message_date:
-            message_date = now.strftime("%d.%m.%Y %H:%M")
-        elif 'назад' in message_date:
-            message_date = now.strftime("%d.%m.%Y %H:%M")
+        if 'сегодня' in message_date or 'назад' in message_date or 'только что' in message_date:
+            # Точность до минуты нам не требуется, поэтому устанавливаем текущую дату
+            message_date = now.strftime(datetime_format())
         elif 'вчера' in message_date:
-            message_date = now.strftime("%d.%m.%Y %H:%M")
+            # Устанавливаем вчерашнюю дату
+            yesterday = now - datetime.timedelta(days=1)
+            message_date = yesterday.strftime(datetime_format())
 
         message_id = message_header.find('div', {'class': 'subjectNumber'}).find('span').text.strip()
         
@@ -57,25 +58,17 @@ class MyParser:
             parser=self
         )
 
-        if len(filter_company()) > 0:
-            company = message.company.split(',')[0].strip()
-            if company not in filter_company():
-                # Если не соответствует фильтр, то не добавляем сообщение
-                return
-
         self.messages.append(message)
 
     @staticmethod
-    def next_url_id(page):
+    def get_topics(page):
         soup = BeautifulSoup(page.text, 'html.parser')
-        prevTopic = soup.find('div', 'topicPage').find('div', {'class': 'previousNextTopicContainer'}).find('div', {'class': 'previousTopic nextPreviousTopic'})
-        
-        if prevTopic is None:
-            next_url_id = False
-        else:
-            next_url_id = int(prevTopic.attrs['data-message-id'])
-
-        return next_url_id
+        topics = soup('div', 'subject')
+        result = []
+        for topic in topics:
+            href = topic.contents[1].attrs['href']
+            result.append(href.replace('/forum/topic/', ''))
+        return result
 
     @staticmethod
     def execution_data(page):

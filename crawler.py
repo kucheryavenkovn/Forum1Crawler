@@ -3,13 +3,15 @@
 from time import sleep
 from bs4 import BeautifulSoup
 import requests
+import datetime
 from colorama import Fore
 from my_parser import MyParser
 from cache import Cache
 from file_io_driver import FileIODriver
 from mongo_io_driver import MongoIODriver
 from secret import authorization_data
-from settings import base_url, no_page_found, sleep_timer, max_attempts, login_url, crawl_start_id, save_to
+from settings import base_url, no_page_found, sleep_timer, max_attempts, login_url, crawl_start_id, crawl_start_date, \
+    save_to, filter_company, datetime_format
 
 
 class Crawler:
@@ -26,7 +28,11 @@ class Crawler:
         else:
             self.io_driver = MongoIODriver()
         self.current_url_id = int(self.cache.last_id) if self.cache.last_id else crawl_start_id()
-        self.current_url = ''
+        last_date = self.cache.last_date if self.cache.last_date is not None else crawl_start_date()
+        self.last_date_processing = datetime.datetime.strptime(last_date, datetime_format()).date()
+
+        self.topics = []
+        self.all_pages_done = False
 
     def break_data_load(self):
         return True if self.__failures == max_attempts() else False
@@ -60,37 +66,73 @@ class Crawler:
 
         return session
 
+    def process_messages(self):
+        message_to_delete = []
+        all_messages_before_the_date = True
+        for message in self.parser.messages:
+            # Здесь проверяем дату всех сообщений в теме
+            message_date = datetime.datetime.strptime(message.datetime, datetime_format()).date()
+            if self.last_date_processing < message_date:
+                all_messages_before_the_date = False
+
+            # Здесь отфильтровываем по компании
+            if len(filter_company()) > 0:
+                company = message.company.split(',')[0].strip()
+                if company not in filter_company():
+                    # Если не соответствует фильтр, то не добавляем сообщение
+                    message_to_delete.append(message)
+
+        if all_messages_before_the_date:
+            self.all_pages_done = True
+
+        for message in message_to_delete:
+            self.parser.messages.remove(message)
+
     def load_topic(self, page):
         print(Fore.BLUE + 'Найдена новая страница темы')
         self.parser.parse_page(page, self)
+        self.process_messages()
         self.io_driver.save_messages(self.parser)
-        self.current_url_id = self.parser.next_url_id(page)
 
     def load_data(self):
-        while self.current_url_id:
-            # page=0 - первая страница темы, pageSize=Size5 - 50 сообщений на странице, максимальная порция.
-            full_url = '{base_url}/topic/{url_id}'.format(base_url = self.__base_url, url_id = str(self.current_url_id))
-
-            self.cache.last_id = self.current_url_id
+        number_page = 0
+        while not self.all_pages_done:
+            # Идем по всем темам до тех пор пока не будет выполнено условие:
+            # Все сообщения в теме младше, чем дата последней обработки форума
+            # Так как все темы отсортированы по дате последнего сообщения,
+            # то таким образом мы будем идти последовательно до начала форума.
+            full_url = '{base_url}/forum/186/topics?page = {number_page}'.format(
+                base_url=self.__base_url, number_page=number_page)
             page = self.__session.get(full_url)
-            if no_page_found() in page.text:
-                print(Fore.RED + 'Страница не найдена')
-                self.__failures += 1
-                # Странная ситуация, битых ссылок в этом алгоритме быть не должно. Но если попали на такую ссылку,
-                # то ищем следующую рабочую перебором.
-                self.current_url_id += 1
-                sleep(sleep_timer())
-            else:
-                print(Fore.WHITE + 'Скачана страница -->', Fore.GREEN + str(self.current_url_id))
-                self.load_topic(page)
-                self.__failures = 0
-            if self.break_data_load():
-                print(Fore.YELLOW + 'Достигнуто максимальное количество попыток. Работа завершена id',
-                      str(self.current_url_id))
-                break
+            self.topics = self.parser.get_topics(page)
+            for topic in self.topics:
+                self.current_url_id = topic
+                page_url = '{base_url}/topic/{topic}'.format(base_url=base_url(), topic=topic)
+                page = self.__session.get(page_url)
+                if no_page_found() in page.text:
+                    print(Fore.RED + 'Страница не найдена')
+                    self.__failures += 1
+                    # Такая ситуация возможна, если тема была удалена. Поэтому просто переходим к следующей теме.
+                    sleep(sleep_timer())
+                else:
+                    print(Fore.WHITE + 'Скачана страница -->', Fore.GREEN + str(self.current_url_id))
+                    self.load_topic(page)
+                    self.__failures = 0
+
+                if self.break_data_load():
+                    print(Fore.YELLOW + 'Достигнуто максимальное количество попыток. Работа завершена id',
+                          str(self.current_url_id))
+                    break
+
+                if self.all_pages_done:
+                    break
+
+            number_page += 1
+
         else:
             print(Fore.GREEN + 'Работа успешно завершена')
 
     def save_data(self):
+        self.cache.last_date = datetime.datetime.now().strftime(datetime_format())
         self.cache.save()
         self.io_driver.save_messages(self.parser)

@@ -47,7 +47,7 @@ class Cache:
                 data = open(data_directory() + 'last_datetime.data')
             except IOError:
                 print('Внимание! Не найден файл с датой последней темы. Будет создан новый.')
-                return 0
+                return None
         else:
             mongo_data = mongo_db_data()
             client = pymongo.MongoClient(mongo_data['ip'], mongo_data['port'])
@@ -55,7 +55,7 @@ class Cache:
             record = db.cache.find_one()
             if record is None:
                 print('Внимание! Не найдена запись с датой последней темы. Будет записана новая.')
-                return 0
+                return None
             data = record['datetime']
 
         return load(data)

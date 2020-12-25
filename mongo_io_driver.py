@@ -3,7 +3,7 @@
 import pymongo
 import datetime
 from secret import mongo_db_data
-from settings import mongo_db, mongo_table, base_url
+from settings import mongo_db, mongo_table, base_url, datetime_format
 
 
 class MongoIODriver:
@@ -49,7 +49,7 @@ class MongoIODriver:
             message_dict['category'] = category[0].strip()
             message_dict['topic'] = category[1].strip()
             # Приведем строковое представление даты к типу datetime
-            message_dict['datetime'] = datetime.datetime.strptime(message_dict['datetime'], '%d.%m.%Y %H:%M')
+            message_dict['datetime'] = datetime.datetime.strptime(message_dict['datetime'], datetime_format())
             # Соберем полный адрес сообщения
             message_dict['full_url'] = '{base_url}/message/{message_url}#m_{message_url}'.format(
                 base_url=base_url(), message_url=message_dict['id'])
