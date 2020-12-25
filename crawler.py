@@ -28,8 +28,18 @@ class Crawler:
         else:
             self.io_driver = MongoIODriver()
         self.current_url_id = 0
-        last_date = self.cache.last_date if self.cache.last_date is not None else crawl_start_date()
-        self.last_date_processing = datetime.datetime.strptime(last_date, datetime_format()).date()
+        if self.cache.last_date is None:
+            last_date = crawl_start_date()
+            last_datetime = datetime.datetime.strptime(last_date, datetime_format()).date()
+        else:
+            last_date = self.cache.last_date
+            last_datetime = datetime.datetime.strptime(last_date, datetime_format()).date()
+            if save_to() != 'file':
+                # При сохранении в монго можно обновить записи, поэтому возьмем дату с запасом на 31
+                # чтобы обновить оценки сообщений, так как они могут меняться со временем.
+                last_datetime = last_datetime - datetime.timedelta(days=31)
+
+        self.last_date_processing = last_datetime
 
         self.all_pages_done = False
 
@@ -110,7 +120,11 @@ class Crawler:
             full_url = '{base_url}/forum/186/topics?page={number_page}'.format(
                 base_url=self.__base_url, number_page=number_page)
             page = self.__session.get(full_url)
-            for topic in self.parser.get_topics(page):
+            topics = self.parser.get_topics(page)
+            if len(topics) == 0:
+                self.all_pages_done = True
+                print(Fore.YELLOW + 'Нет тем для обработки')
+            for topic in topics:
                 self.current_url_id = int(topic)
                 page_url = '{base_url}/topic/{topic}'.format(base_url=base_url(), topic=topic)
                 page = self.__session.get(page_url)

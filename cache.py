@@ -20,6 +20,7 @@ class Cache:
         if save_to() == 'file':
             try:
                 data = open(data_directory() + 'last_datetime.data')
+                data = load(data)
             except IOError:
                 print('Внимание! Не найден файл с датой последней темы. Будет создан новый.')
                 return None
@@ -31,9 +32,9 @@ class Cache:
             if record is None:
                 print('Внимание! Не найдена запись с датой последней темы. Будет записана новая.')
                 return None
-            data = record['datetime']
+            data = record['last_date']
 
-        return load(data)
+        return data
 
     def save(self):
         """
@@ -48,4 +49,8 @@ class Cache:
             mongo_data = mongo_db_data()
             client = pymongo.MongoClient(mongo_data["ip"], mongo_data["port"])
             db = client[mongo_db()]
-            db.cache.insert_one({'last_date': self.last_date})
+            cache = db.cache.find_one()
+            if cache is None:
+                db.cache.insert_one({'last_date': self.last_date})
+            else:
+                db.cache.update_one({'_id': cache['_id']}, {"$set": {'last_date': self.last_date}})

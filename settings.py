@@ -6,10 +6,10 @@ def save_to() -> str:
         mongo - Сохраняем в MongoDB.
         При указания этого режима проверить функции mongo_db(), mongo_table, secret.mongo_db_data()
         file - Сохраняем в файл.
-        При указании этого режима проверить функции data_directory()
+        При указании этого режима следует создать директорию и указать ее в data_directory()
     :rtype: str
     """
-    return 'file'
+    return 'mongo'
 
 
 def data_directory() -> str:

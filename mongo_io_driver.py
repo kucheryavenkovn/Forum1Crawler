@@ -31,11 +31,6 @@ class MongoIODriver:
 
     def save_messages(self, parser):
         for message in parser.messages:
-            record = self.table.find_one({'id': message.id})
-            if record is not None:
-                # Это сообщение было добавлено раньше,
-                # поэтому пропускаем сообщение
-                continue
             message_dict = message.message_representation()
             # Разделим компанию и город
             company = message_dict['company'].split(',')
@@ -55,4 +50,10 @@ class MongoIODriver:
             message_dict['full_url'] = '{base_url}/message/{message_url}#m_{message_url}'.format(
                 base_url=base_url(), message_url=message_dict['id'])
 
-            self.table.insert_one(message_dict)
+            record = self.table.find_one({'id': message.id})
+            if record is not None:
+                # Это сообщение было добавлено раньше,
+                # поэтому обновляем его, так как могли измениться оценки
+                self.table.update_one({'_id': record['_id']}, {"$set": message_dict})
+            else:
+                self.table.insert_one(message_dict)
