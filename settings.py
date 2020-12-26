@@ -9,7 +9,7 @@ def save_to() -> str:
         При указании этого режима следует создать директорию и указать ее в data_directory()
     :rtype: str
     """
-    return 'mongo'
+    return 'file'
 
 
 def data_directory() -> str:
@@ -34,6 +34,35 @@ def mongo_table() -> str:
     :rtype: str
     """
     return 'messages'
+
+
+def need_emails() -> bool:
+    """
+    Признак - нужно ли получить email для пользователей.
+    Email'ы хранятся отдельно и способ их получения реализован только для mongoDB
+    в модуле mongo_io_driver.py get_email()
+
+    :rtype: bool
+    """
+    return False
+
+
+def mongo_db_user() -> str:
+    """
+    База данных mongo db, в которой храниться информация о пользователях
+    Нужна опционально для получения email
+    :rtype: str
+    """
+    return 'tasker'
+
+
+def mongo_table_user() -> str:
+    """
+    Таблица в базе данных, в которой хранятся email'ы пользователей
+    Нужна опционально для получения email
+    :rtype: str
+    """
+    return 'users'
 
 
 def filter_company() -> str:
